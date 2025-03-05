@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resell Scanner POC</title>
+  <style>
+    body {
+      font-family: 'Pretendard Variable', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f5f5f5;
+    }
+    #container {
+      position: relative;
+      width: 382px;
+      height: auto;
+      margin: 0 auto;
+      background: #FFFFFF;
+      border-radius: 20px;
+      padding: 20px;
+    }
+    h2 {
+      font-family: 'Pretendard Variable', Arial, sans-serif;
+      font-style: normal;
+      font-weight: 700;
+      font-size: 24px;
+      line-height: 28px;
+      color: #232427;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-family: 'Pretendard Variable', Arial, sans-serif;
+      font-style: normal;
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 19px;
+      color: #4E5867;
+      text-align: center;
+      margin: 20px 0;
+    }
+    #image-frame {
+      position: relative;
+      width: 381px;
+      height: 504px;
+      margin: 20px auto;
+      background: #f0f0f0;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    #video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #preview {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    #photo-input {
+      display: none;
+    }
+    #warning-banner {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      padding: 4px 24px 4px 10px;
+      gap: 8px;
+      width: 381px;
+      height: 41px;
+      margin: 20px auto;
+      background: #FCD752;
+      border-radius: 100px;
+    }
+    #warning-banner span {
+      font-family: 'Pretendard Variable', Arial, sans-serif;
+      font-style: normal;
+      font-weight: 600;
+      font-size: 15px;
+      line-height: 20px;
+      color: #232427;
+    }
+    #upload-btn {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      padding: 12px 24px;
+      width: 382px;
+      height: 56px;
+      background: linear-gradient(90deg, #9976EF 0%, #2D98DE 100%);
+      border-radius: 12px;
+      border: none;
+      font-family: 'Pretendard Variable', Arial, sans-serif;
+      font-style: normal;
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 20px;
+      text-align: center;
+      color: #FFFFFF;
+      margin: 20px auto;
+    }
+    #result {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      padding: 4px 0px;
+      width: 100%;
+      height: auto;
+      font-family: 'Pretendard Variable', Arial, sans-serif;
+      font-style: normal;
+      font-weight: 600;
+      font-size: 15px;
+      line-height: 20px;
+      color: #232427;
+      margin: 20px 0;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h2>Scan Your Item</h2>
+    <h1>Please scan your item by placing it within the frame below.</h1>
+    <div id="image-frame">
+      <video id="video" autoplay playsinline></video>
+      <img id="preview" src="" alt="Captured Image">
+    </div>
+    <input type="file" id="photo-input" accept="image/*">
+    <div id="warning-banner">
+      <span>Place your item within the frame.</span>
+    </div>
+    <button id="upload-btn">Next</button>
+    <div id="result">Result will be displayed here</div>
+    <canvas id="canvas" style="display: none;"></canvas>
+  </div>
+  <script>
+    const photoInput = document.getElementById('photo-input');
+    const uploadBtn = document.getElementById('upload-btn');
+    const resultDiv = document.getElementById('result');
+    const video = document.getElementById('video');
+    const previewImg = document.getElementById('preview');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        resultDiv.innerText = 'Error: Unable to access camera';
+      }
+    }
+
+    window.addEventListener('load', startCamera);
+
+    uploadBtn.addEventListener('click', async () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(async (blob) => {
+        previewImg.src = URL.createObjectURL(blob);
+        previewImg.style.display = 'block';
+        video.style.display = 'none';
+
+        const formData = new FormData();
+        formData.append('photo', blob, 'capture.jpg');
+
+        resultDiv.innerText = "Processing...";
+        const response = await fetch('/api/scan', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await response.json();
+        resultDiv.innerText = data.result;
+      }, 'image/jpeg');
+    });
+  </script>
+</body>
+</html>
