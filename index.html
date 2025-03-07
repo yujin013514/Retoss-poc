@@ -74,21 +74,23 @@
       display: flex;
       flex-direction: row;
       align-items: center;
-      padding: 4px 24px 4px 10px;
+      padding: 10px 16px;
       gap: 8px;
-      width: 381px;
-      height: 41px;
+      max-width: 100%;  
+      height: auto;  
       margin: 20px auto;
       background: #FCD752;
-      border-radius: 100px;
+      border-radius: 12px;  
     }
     #warning-banner span {
       font-family: 'Pretendard Variable', Arial, sans-serif;
       font-style: normal;
       font-weight: 600;
-      font-size: 15px;
+      font-size: 18px;  
       line-height: 20px;
       color: #232427;
+      text-align: center;
+      white-space: nowrap;  
     }
     #upload-btn {
       display: flex;
@@ -145,6 +147,7 @@
     <canvas id="canvas" style="display: none;"></canvas>
   </div>
   <script>
+    // Get DOM elements
     const photoInput = document.getElementById('photo-input');
     const uploadBtn = document.getElementById('upload-btn');
     const resultDiv = document.getElementById('result');
@@ -153,6 +156,7 @@
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
 
+    // Function to start the camera
     async function startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -163,29 +167,47 @@
       }
     }
 
+    // Start camera when the page loads
     window.addEventListener('load', startCamera);
 
+    // Add event listener for the "Next" button
     uploadBtn.addEventListener('click', async () => {
+      // Set canvas size to match video dimensions
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
 
+      // Draw the current video frame onto the canvas
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+      // Convert canvas to a blob (image file)
       canvas.toBlob(async (blob) => {
+        // Display the captured image in the preview
         previewImg.src = URL.createObjectURL(blob);
         previewImg.style.display = 'block';
         video.style.display = 'none';
 
+        // Create FormData to send the image to the server
         const formData = new FormData();
         formData.append('photo', blob, 'capture.jpg');
 
-        resultDiv.innerText = "Processing...";
-        const response = await fetch('/api/scan', {
-          method: 'POST',
-          body: formData,
-        });
-        const data = await response.json();
-        resultDiv.innerText = data.result;
+        // Update result text while processing
+        resultDiv.innerText = 'Processing...';
+        try {
+          const response = await fetch('/api/scan', {
+            method: 'POST',
+            body: formData,
+          });
+          const data = await response.json();
+          console.log('API Response:', data); // Log the response for debugging
+          if (data.error) {
+            resultDiv.innerText = `Error: ${data.error}`;
+          } else {
+            resultDiv.innerText = `Category: ${data.category}, Reason: ${data.reasoning}`;
+          }
+        } catch (error) {
+          console.error('Fetch error:', error);
+          resultDiv.innerText = 'Error: Failed to process scan';
+        }
       }, 'image/jpeg');
     });
   </script>

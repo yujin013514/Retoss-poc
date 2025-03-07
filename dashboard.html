@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bidding System Dashboard</title>
+  <style>
+    body {
+      font-family: 'Pretendard Variable', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    #container {
+      width: 1200px;
+      height: auto;
+      background: #FFFFFF;
+      border-radius: 20px;
+      padding: 20px;
+    }
+    h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #232427;
+      text-align: center;
+    }
+    #item-description {
+      text-align: center;
+      font-size: 16px;
+      color: #4E5867;
+      margin: 10px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #f0f0f0;
+      font-weight: 700;
+    }
+    .status-accepted { color: #3197DE; }
+    .status-rejected { color: #EF3826; }
+    #price-update {
+      text-align: center;
+      font-size: 16px;
+      color: #232427;
+      margin: 10px 0;
+    }
+    .reasoning {
+      font-size: 12px;
+      color: #6B7280;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h2>Bidding System Dashboard</h2>
+    <div id="price-update">Current Price: $81.00</div>
+    <div id="item-description">A clean, lightly used jacket in good condition</div>
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Distance (km)</th>
+        <th>Cart Adds</th>
+        <th>Past Purchases</th>
+        <th>Last Active</th>
+        <th>Category Match</th>
+        <th>Score (Gemini)</th>
+        <th>Status</th>
+        <th>Offer (Gemini)</th>
+        <th>Reasoning (Gemini)</th>
+      </tr>
+      <tbody id="bidding-table"></tbody>
+    </table>
+  </div>
+  <script>
+    async function loadBidData() {
+      const response = await fetch('/api/bid', { method: 'POST', body: new FormData() });
+      const data = await response.json();
+      const table = document.getElementById('bidding-table');
+      table.innerHTML = '';
+      if (data.customers && data.customers.length > 0) {
+        data.customers.forEach(customer => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${customer.id}</td>
+            <td>${customer.name}</td>
+            <td>${customer.distance}</td>
+            <td>${customer.cartAdds}</td>
+            <td>${customer.pastPurchases}</td>
+            <td>${new Date(customer.lastActive).toLocaleString()}</td>
+            <td>${customer.preferredCategory === customer.itemCategory ? 'Yes' : 'No'}</td>
+            <td>${customer.score}</td>
+            <td class="status-${customer.offerStatus.toLowerCase()}">${customer.offerStatus}</td>
+            <td>Discount: ${customer.discount}%, Credit: $${customer.credit.toFixed(2)}</td>
+            <td class="reasoning">${customer.reasoning}</td>
+          `;
+          table.appendChild(row);
+        });
+      } else {
+        table.innerHTML = '<tr><td colspan="11">No customers available</td></tr>';
+      }
+    }
+
+    window.onload = () => {
+      loadBidData();
+    };
+  </script>
+</body>
+</html>
