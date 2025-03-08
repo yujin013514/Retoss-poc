@@ -1,15 +1,17 @@
 # Retoss  
-👋 Welcome to **Retoss**, a Hack the Future Google Gemini project PoC! This repository showcases a proof-of-concept for a clothing item classification system (Scanner) and a customer bidding/ranking system (Bidding System), both powered by the Google Gemini API. Built with Node.js on the server side and a simple HTML/JavaScript frontend, this project demonstrates AI-driven resale solutions.  
+👋 Welcome to **Retoss**, a Hack the Future Google Gemini project PoC! This repository showcases a proof-of-concept for a clothing item classification system (Scanner) and a customer bidding/ranking system (Bidding System), both powered by the Google Gemini API. Built with Node.js on the server side and a simple HTML/JavaScript frontend, this project demonstrates AI-driven reverse logistic solutions.  
 
 ## Installation  
 To install and run this project locally, follow these steps:  
 
 1. Clone the repository:  
-   git clone https://github.com/your-username/Retoss.git  
-   cd Retoss  
+   ```bash  
+   'git clone' https://github.com/your-username/Retoss.git
+   'cd Retoss'
 
 2. Install dependencies:  
-   npm install  
+    ```bash
+   'npm install'  
 
 3. Set up environment variables:  
    - In the root directory, create a `.env` file.  
@@ -28,20 +30,6 @@ To install and run this project locally, follow these steps:
 - Scanner: Allow webcam access on http://localhost:3000, select a clothing item image, and click "Next" to see Gemini classify it (e.g., "Resellable" or "Disposable").  
 - Bidding System: Visit the dashboard at http://localhost:3000/admin to view a ranked list of customers with scores, discounts, and credits calculated by Gemini.  
 The main logic for the Scanner is in `app.js`, while the Bidding System is handled by `utils/customerManager.js`.  
-
-## Repository Structure  
-Retoss/  
-├── app.js              # Server logic and Scanner API (/api/scan)  
-├── index.html          # Scanner UI with webcam integration  
-├── dashboard.html      # Bidding System UI  
-├── utils/  
-│   ├── customerManager.js  # Bidding System logic and Gemini prompt  
-│   └── gemini.js           # Gemini API integration  
-├── sampleCustomers.json # Sample customer data for bidding  
-├── package.json         # Project dependencies  
-├── .env                 # Environment variables (API key)  
-└── README.md            # This file  
-- Feel free to explore and tweak the `customerManager.js` prompt or `app.js` endpoints!  
 
 ## Tech Highlights  
 - Node.js
