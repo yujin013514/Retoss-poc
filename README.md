@@ -6,12 +6,12 @@ To install and run this project locally, follow these steps:
 
 1. Clone the repository:  
    ```bash  
-   'git clone' https://github.com/your-username/Retoss.git
-   'cd Retoss'
+   git clone https://github.com/your-username/Retoss.git
+   cd Retoss
 
 2. Install dependencies:  
     ```bash
-   'npm install'  
+   npm install
 
 3. Set up environment variables:  
    - In the root directory, create a `.env` file.  
